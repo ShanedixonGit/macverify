@@ -2,6 +2,17 @@
 
 Notable changes to macverify. Dates are ISO 8601.
 
+## Unreleased
+
+### Fixed
+
+- The source distribution shipped `tests/` without `tests/__init__.py`, so the
+  verification command the README gives — `python3 -m unittest discover -s tests
+  -t .` — failed on an sdist with `ImportError: Start directory is not
+  importable`. A `MANIFEST.in` now defines the sdist explicitly, and CI extracts
+  the built sdist and runs its test suite so the promise holds for anyone who
+  checks the tool before trusting it.
+
 ## [1.0.1] - 2026-09-01
 
 ### Fixed

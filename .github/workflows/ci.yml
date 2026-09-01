@@ -124,6 +124,12 @@ jobs:
           print("no stray files in the wheel")
           PY
 
+      - name: Check the sdist carries a runnable test suite
+        run: |
+          mkdir -p /tmp/sdist && tar xzf dist/*.tar.gz -C /tmp/sdist
+          cd /tmp/sdist/macverify-*
+          python -m unittest discover -s tests -t .
+
       - name: Install into a clean environment and run it
         run: |
           python -m venv /tmp/probe
