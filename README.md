@@ -3,7 +3,7 @@
   <img alt="macverify" src=".github/brand/wordmark-light.svg" width="340">
 </picture>
 
-[![CI](https://github.com/ShanedixonGit/macverify/actions/workflows/ci.yml/badge.svg)](https://github.com/ShanedixonGit/macverify/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/ShanedixonGit/macverify/actions/workflows/ci.yml/badge.svg)](https://github.com/ShanedixonGit/macverify/actions/workflows/ci.yml) [![PyPI](https://img.shields.io/pypi/v/macverify.svg)](https://pypi.org/project/macverify/) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 > **macverify 1.0.0** — macOS 11+, Python 3.9+, zero dependencies, fully offline.
 
