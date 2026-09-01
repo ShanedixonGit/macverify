@@ -56,8 +56,14 @@ Stdlib `unittest`, no test dependencies:
 ```
 
 Use `/usr/bin/python3` — the stock 3.9 interpreter — rather than a newer pyenv
-build, or you will not catch a 3.9 incompatibility. CI runs the suite on 3.9
-through 3.13 and on the runner's own system interpreter.
+build, or you will not catch a 3.9 incompatibility.
+
+CI covers this in three layers: the full suite on macOS against Python
+3.11-3.13, the full suite on the runner's own `/usr/bin/python3`, and a Linux
+job that compiles every module and runs the platform-independent tests
+(`test_guarantees`, `test_quickfix`) on 3.9 and 3.10. The Linux job exists
+because macOS Intel runners queue unpredictably; 3.9 and 3.10 breakages are
+language-level, so they surface fine off macOS.
 
 If you weaken a guarantee, a test will fail. That is the point: fix the change,
 not the test.

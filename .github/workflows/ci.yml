@@ -21,10 +21,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-13
-            python: "3.9"
-          - os: macos-13
-            python: "3.10"
           - os: macos-latest
             python: "3.11"
           - os: macos-latest
@@ -58,6 +54,26 @@ jobs:
           python -m macverify --list-domains
           python -m macverify --check
 
+  language-compat:
+    name: Python ${{ matrix.python }} syntax and stdlib
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9", "3.10"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Compile every module
+        run: python -m compileall -q macverify
+
+      - name: Platform-independent tests
+        run: python -m unittest tests.test_guarantees tests.test_quickfix -v
+
   stock-interpreter:
     name: Stock macOS python3
     runs-on: macos-latest
@@ -65,7 +81,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Report the interpreter a stock Mac ships
-        run: /usr/bin/python3 --version
+        run: |
+          /usr/bin/python3 --version
+          /usr/bin/python3 -c "import sys; print('version_info:', sys.version_info[:3])"
 
       - name: Compile and test on it
         run: |
