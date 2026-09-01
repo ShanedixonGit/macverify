@@ -1,0 +1,12 @@
+{
+  "_note": "A single entry from quick_fixes.commands. Commands are deduplicated across findings, so one command can address several. macverify never runs any of them.",
+  "command": "softwareupdate -l",
+  "tier": "inspect",
+  "needs_elevation": false,
+  "note": "this audit did not check online",
+  "severity": "warning",
+  "domains": ["security"],
+  "titles": ["1 software updates are pending in the local cache"],
+  "finding_ids": ["security-1-software-updates-are-pending-in-the-local-cach-369639ec"],
+  "reversible": true
+}

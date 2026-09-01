@@ -1,0 +1,11 @@
+{
+  "_note": "A single finding object, copied from a real run and edited to remove host detail. Every entry in the top-level `findings` array of audit_<timestamp>.json has exactly this shape.",
+  "id": "security-1-software-updates-are-pending-in-the-local-cach-369639ec",
+  "domain": "security",
+  "severity": "warning",
+  "title": "1 software updates are pending in the local cache",
+  "evidence": "Safari; macOS Sequoia 15.7.9",
+  "why_it_matters": "Pending Apple updates usually include XProtect and kernel level security fixes that only apply after installation and restart.",
+  "suggested_action": "softwareupdate -l   # this audit did not check online",
+  "reversible": true
+}

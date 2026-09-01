@@ -1,0 +1,46 @@
+# Generated audit output. Every report names this host and lists its
+# applications, keys and privacy grants, so it must never be committed.
+macverify/reports/
+reports/
+.macverify/
+audit_*.json
+audit_*.html
+remediation.md
+ai_assistant_findings.json
+ai_assistant_audit.md
+
+# Source archives.
+*.zip
+
+# Working brand folder. The published subset that the README and GitHub need
+# lives in .github/brand/; this is the unversioned working copy.
+macverify/brand/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Internal release-readiness record. Working notes for the maintainer, not a
+# public artifact; it names open items and authoring history.
+RELEASE_CHECKLIST.md
+
+# Local tool state
+.claude/settings.local.json
+.claude-flow/
+.swarm/
+.hive-mind/
+memory/
+
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
