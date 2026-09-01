@@ -3,6 +3,6 @@ contact_links:
   - name: Report a security vulnerability
     url: https://github.com/ShanedixonGit/macverify/security/advisories/new
     about: Please report vulnerabilities privately, never in a public issue. See SECURITY.md.
-  - name: Question or idea
-    url: https://github.com/ShanedixonGit/macverify/discussions
-    about: Ask a question or float an idea before opening an issue.
+  - name: Read the design notes first
+    url: https://github.com/ShanedixonGit/macverify/blob/main/design_notes.md
+    about: The guarantees, severity rules and context-cost model. Most "why does it do that" questions are answered here.

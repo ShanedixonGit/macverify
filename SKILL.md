@@ -24,25 +24,25 @@ recommend a real scan alongside it (see "Always say this" below).
 
 ## Step 1 - locate or produce a report
 
-Find the checkout first: the user's own path, or `~/Developer/macverify`. Then,
-from the directory *above* it:
+If `macverify` is on `PATH`, run it from anywhere. If the user has a clone
+instead, run `python3 -m macverify` from inside it.
 
 ```sh
-python3 -m macverify --quick-fixes
+macverify --quick-fixes
 ```
 
-Reports land in `macverify/reports/`. A run takes about 30-45 seconds.
+Reports land in `~/.macverify/reports/`, owner-only. A run takes 30-60 seconds.
 
-If a recent report already exists (`ls -t macverify/reports/audit_*.json | head -1`,
+If a recent report already exists (`ls -t ~/.macverify/reports/audit_*.json | head -1`,
 check `generated_at`), read that instead of re-running. Re-run when the user has
 applied fixes since, or the report is more than a few days old.
 
-If it refuses to run, `python3 -m macverify --check` prints why - wrong platform,
+If it refuses to run, `macverify --check` prints why - wrong platform,
 Python too old, or a capability this Mac does not have.
 
 ## Step 2 - read the dataset, not the HTML
 
-Load the newest `reports/audit_*.json`. Never paste the whole file into context;
+Load the newest `~/.macverify/reports/audit_*.json`. Never paste the whole file into context;
 it is megabytes. Pull only these keys:
 
 - `summary.finding_counts` - critical / warning / info tally.
@@ -63,7 +63,7 @@ A compact digest, safe to run as one command:
 ```sh
 python3 - <<'PY'
 import glob, json, os
-path = max(glob.glob(os.path.expanduser("~/Developer/macverify/reports/audit_*.json")), key=os.path.getmtime)
+path = max(glob.glob(os.path.expanduser("~/.macverify/reports/audit_*.json")), key=os.path.getmtime)
 d = json.load(open(path))
 print(path, d["generated_at"], d["summary"]["finding_counts"])
 print("degraded:", d["summary"]["domains_degraded"])
@@ -131,7 +131,7 @@ Rules while doing this:
 After the user applies fixes, re-run and diff the counts:
 
 ```sh
-python3 -m macverify --json-only
+macverify --json-only
 ```
 
 Compare `summary.finding_counts` and confirm the specific finding `id`s are gone.
@@ -140,7 +140,8 @@ A fix that did not change the count did not work.
 ## Step 6 - the AI assistant synthesis
 
 When the user asks about their AI tooling specifically, write
-`reports/ai_assistant_audit.md` from `reports/ai_assistant_findings.json`. That
+`~/.macverify/reports/ai_assistant_audit.md` from the
+`ai_assistant_findings.json` beside it. That
 file carries all four assistant domains: `claude_code`, `github_copilot`,
 `openai_codex` and the cross-tool `ai_assistants`.
 

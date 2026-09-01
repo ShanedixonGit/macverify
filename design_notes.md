@@ -55,7 +55,38 @@ uptime over 30 days, custom `/etc/hosts` entries, an enabled system proxy,
 long-lived SSH keys, expired GPG keys, unreachable permission rules, vague skill
 descriptions, and memory files that duplicate a skill.
 
-## Context cost model for Claude Code
+## AI assistant family
+
+Domain 13 is four collectors, not one. `claude_code`, `github_copilot` and
+`openai_codex` each inventory one assistant against the same evidence model;
+`ai_assistants` compares them against each other.
+
+Every entry any of them emits carries the same fields: `purpose` and
+`purpose_declared`, `active` with an `active_reason` saying why, and
+`overlap_candidates` listing what else declares a similar purpose. A collector
+whose tool is not installed returns `unavailable` with a specific reason. That
+is an absence, not a failure, and the report says so rather than reading as a
+clean result.
+
+`context_cost` is only a number where the tool actually has a loading concept —
+an instructions file that is prepended to every request. Editor settings,
+extensions, Codex configuration, session records and MCP schemas have no such
+concept, so their token estimates are the string `n/a` with a
+`measurement_note` explaining why. Nothing is invented to fill the column.
+
+The `ai_assistants` collector compares `CLAUDE.md`, `AGENTS.md` and
+`.github/copilot-instructions.md` within each directory by the Jaccard overlap
+of their content vocabularies after stopword removal. Every multi-assistant
+directory produces a finding carrying the full pairwise similarity matrix, and
+severity follows the strongest pair. No finding is emitted without lines quoted
+from both files; where two files share no vocabulary, each file's own first
+substantive line is quoted instead, so the evidence rule holds either way.
+
+Session transcripts are never opened. The `openai_codex` collector records only
+the file count, byte total and timestamps of `~/.codex/sessions`, and each
+record carries a `content_policy` string stating that.
+
+## Context cost model for AI assistants
 
 The distinction that matters is what is paid for on every request versus what is
 paid for only when used.
@@ -72,6 +103,10 @@ paid for only when used.
 - Skill bodies and their bundled reference files.
 - Command bodies and agent bodies.
 - `CLAUDE.md` files that exist but are out of scope.
+
+The same split applies to the other two assistants: an in-scope
+`.github/copilot-instructions.md` or `AGENTS.md` is always-loaded and counted in
+full, because each tool prepends it to every request.
 
 **Not measurable offline**: an enabled MCP server injects its tool schemas into
 every request, but the schemas only exist once the server is running. Because
