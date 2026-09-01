@@ -221,6 +221,35 @@ class Portability(unittest.TestCase):
         self.assertGreaterEqual(checked, 4, "the tilde-expansion check matched almost nothing, so it is not proving much")
 
 
+class RepositoryHygiene(unittest.TestCase):
+    def tracked_text_files(self):
+        root = os.path.dirname(PACKAGE_ROOT)
+        for base, dirs, files in os.walk(root):
+            dirs[:] = [d for d in dirs if d not in (".git", "__pycache__", "brand", "build", "dist", ".venv")
+                       and not d.endswith(".egg-info")]
+            for name in sorted(files):
+                if name.endswith((".py", ".md", ".toml", ".yml", ".yaml", ".json", ".cfg")):
+                    yield os.path.relpath(os.path.join(base, name), root)
+
+    def test_no_credential_shaped_literal_is_committed(self):
+        from macverify.collectors import secrets
+
+        root = os.path.dirname(PACKAGE_ROOT)
+        offenders = []
+        for relative in self.tracked_text_files():
+            try:
+                with open(os.path.join(root, relative), "r", encoding="utf-8") as handle:
+                    text = handle.read()
+            except (OSError, UnicodeDecodeError):
+                continue
+            for hit in secrets._scan_text(relative, text):
+                if hit["detector"] == "name_hint":
+                    continue
+                offenders.append("%s:%s %s" % (relative, hit["line"], hit["detector"]))
+        self.assertEqual([], offenders,
+                         "a credential-shaped literal is committed; assemble test fixtures at runtime instead")
+
+
 class Conventions(unittest.TestCase):
     def test_the_assistant_modules_carry_no_code_comments(self):
         recent = ("aicommon.py", "collectors/ai_assistants.py",

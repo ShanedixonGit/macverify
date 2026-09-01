@@ -93,12 +93,14 @@ jobs:
       - name: Check the wheel ships only the package
         run: |
           python - <<'PY'
-          import glob, zipfile
+          import glob, re, zipfile
+          version = re.search(r'^\s*version\s*=\s*"([^"]+)"', open("pyproject.toml").read(), re.M).group(1)
           wheel = glob.glob("dist/*.whl")[0]
           names = zipfile.ZipFile(wheel).namelist()
           tops = sorted({name.split("/")[0] for name in names})
-          print("wheel top level:", tops)
-          assert tops == ["macverify", "macverify-1.0.0.dist-info"], tops
+          expected = ["macverify", "macverify-%s.dist-info" % version]
+          print("wheel top level:", tops, "expected:", expected)
+          assert tops == expected, (tops, expected)
           strays = [n for n in names if "brand" in n or "examples" in n or "tests" in n]
           assert not strays, strays
           print("no stray files in the wheel")

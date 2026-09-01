@@ -1,3 +1,11 @@
+"""Redaction tests.
+
+Every credential here is fabricated and assembled at runtime from fragments, so
+no contiguous credential-shaped literal exists in this file. That keeps the
+repository clean to secret scanners, including macverify's own detector, which
+would otherwise flag its own test fixtures.
+"""
+
 import json
 import os
 import shutil
@@ -8,31 +16,39 @@ from macverify import report_html, report_md
 from macverify.collectors import secrets
 from macverify.context import Context
 
+
+def synthetic(prefix, body):
+    return prefix + body
+
+
 PLANTED = {
-    "openai_legacy": "sk-abc123DEADBEEF0987654321abcdefXYZQRSTUV",
-    "openai_project": "sk-proj-ZZTOPsecretVALUE1234567890abcdefghijklmn",
-    "github_token": "ghp_wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+    "openai_legacy": synthetic("sk-", "abc123DEADBEEF0987654321abcdefXYZQRSTUV"),
+    "openai_project": synthetic("sk-", "proj-ZZTOPsecretVALUE1234567890abcdefghijklmn"),
+    "github_token": synthetic("ghp_", "w" * 36),
     "shell_password": "hunter2SuperSecretPassword",
-    "aws_key_id": "AKIAIOSFODNN7EXAMPLE",
+    "aws_key_id": synthetic("AKIA", "IOSFODNN7EXAMPLE"),
     "aws_secret": "wJalrXUtnFEMIbKbrutalWKEYlongEXAMPLEKEY",
     "client_secret": "abcdefghijklmnopqrstuvwxyz012345",
-    "anthropic_key": "sk-ant-api03-ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+    "anthropic_key": synthetic("sk-", "ant-api03-" + "Z" * 30),
 }
 
-ZSHRC = """export API_KEY=%(openai_legacy)s
-export OPENAI_API_KEY="%(openai_project)s"
-export GITHUB_TOKEN=%(github_token)s
-export DB_PASSWORD='%(shell_password)s'
-""" % PLANTED
+ZSHRC = "\n".join([
+    "export API_KEY=" + PLANTED["openai_legacy"],
+    'export OPENAI_API_KEY="' + PLANTED["openai_project"] + '"',
+    "export GITHUB_TOKEN=" + PLANTED["github_token"],
+    "export DB_PASSWORD='" + PLANTED["shell_password"] + "'",
+]) + "\n"
 
-AWS = """[default]
-aws_access_key_id = %(aws_key_id)s
-aws_secret_access_key = %(aws_secret)s
-""" % PLANTED
+AWS = "\n".join([
+    "[default]",
+    "aws_access_key_id = " + PLANTED["aws_key_id"],
+    "aws_secret_access_key = " + PLANTED["aws_secret"],
+]) + "\n"
 
-APP_ENV = """CLIENT_SECRET=%(client_secret)s
-ANTHROPIC_API_KEY=%(anthropic_key)s
-""" % PLANTED
+APP_ENV = "\n".join([
+    "CLIENT_SECRET=" + PLANTED["client_secret"],
+    "ANTHROPIC_API_KEY=" + PLANTED["anthropic_key"],
+]) + "\n"
 
 
 def build_home(root):

@@ -20,7 +20,7 @@ BINARY_PATTERN = re.compile(r"^[a-z_][a-z0-9_.+-]*$")
 
 GUI_MARKERS = ("system settings", "system preferences", "recovery", "startup security utility")
 
-DESTRUCTIVE = ("rm ", "rm -", "prune", "uninstall", "bootout", "unload", "--delete", "delete", "cleanup", "purge", "erase")
+DESTRUCTIVE = ("rm ", "rm -", "prune", "uninstall", "bootout", "unload", "--delete", "delete", " clean", "cleanup", "purge", "erase", "trash", "--force")
 
 DEFAULT_TIERS = {
     "cat": "inspect", "df": "inspect", "du": "inspect", "file": "inspect", "grep": "inspect",

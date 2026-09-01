@@ -17,6 +17,22 @@ Notable changes to macverify. Dates are ISO 8601.
 - Issue and pull request templates, `CODE_OF_CONDUCT.md`, and Dependabot for
   GitHub Actions.
 
+### Fixed
+
+- Quick-fix tiering classified cache-clearing commands (`npm cache clean`,
+  `yarn cache clean`, `git clean`, `pip cache purge`) as `apply`, the
+  "reversible" tier, when they delete data. They are now `careful`. Found by the
+  new tiering tests; no collector emitted one of these commands, so no report
+  ever mislabelled a fix.
+- `SKILL.md` pointed at `macverify/reports/` and at running from the directory
+  above a clone, both stale since the default output moved to
+  `~/.macverify/reports`.
+- `design_notes.md` documented only the Claude Code collector and described the
+  context-cost model as Claude-Code-only.
+- Test credentials are assembled at runtime so no credential-shaped literal is
+  committed; this was tripping GitHub secret scanning and macverify's own
+  detector.
+
 ## [1.0.0] - 2026-09-01
 
 First public release.
