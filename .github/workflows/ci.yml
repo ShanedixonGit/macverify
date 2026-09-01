@@ -28,7 +28,7 @@ jobs:
           - os: macos-latest
             python: "3.13"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v5
         with:
@@ -62,7 +62,7 @@ jobs:
       matrix:
         python: ["3.9", "3.10"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v5
         with:
@@ -78,7 +78,7 @@ jobs:
     name: Stock macOS python3
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Report the interpreter a stock Mac ships
         run: |
@@ -97,7 +97,7 @@ jobs:
     name: Install and entry point
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v5
         with:
