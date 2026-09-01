@@ -3,7 +3,7 @@
   <img alt="macverify" src=".github/brand/wordmark-light.svg" width="340">
 </picture>
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![CI](https://github.com/ShanedixonGit/macverify/actions/workflows/ci.yml/badge.svg)](https://github.com/ShanedixonGit/macverify/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 > **macverify 1.0.0** — macOS 11+, Python 3.9+, zero dependencies, fully offline.
 
@@ -27,8 +27,8 @@ is a printer helper or a backdoor.
 
 Run a real scanner alongside it: [Malwarebytes](https://www.malwarebytes.com/mac),
 [KnockKnock](https://objective-see.org/products/knockknock.html) or
-[LuLu](https://objective-see.org/products/lulu.html). Scan first — removing an
-adware LaunchAgent changes what this report is built from.
+[LuLu](https://objective-see.org/products/lulu.html). Scan first — removing
+adware changes what this report is built from.
 
 ## Installation
 
@@ -54,7 +54,7 @@ python3 -m macverify
 ### Verify it before you run it
 
 This tool reads your machine, so do not take its word for it. From a clone,
-these three greps must all return nothing:
+these must all return nothing:
 
 ```sh
 grep -rn "shell=True\|os\.system\|os\.popen" --include='*.py' .
@@ -62,14 +62,15 @@ grep -rnE "\b(eval|exec)[[:space:]]*\(|pickle" --include='*.py' .
 grep -rn "urllib\|requests\.\|http\.client\|urlopen\|httpx" --include='*.py' .
 ```
 
-No shell execution, no dynamic evaluation, no network client. Then confirm it
-compiles on the stock interpreter, with nothing installed:
+No shell execution, no dynamic evaluation, no network client. The same claims
+are enforced as tests, which CI re-runs on every push:
 
 ```sh
-/usr/bin/python3 -m compileall -q macverify && echo ok
+/usr/bin/python3 -m compileall -q macverify
+/usr/bin/python3 -m unittest discover -s tests -t .
 ```
 
-[SECURITY.md](SECURITY.md) lists every claim and the command that checks it.
+[SECURITY.md](SECURITY.md) lists each claim and how it is checked.
 
 ## Usage
 

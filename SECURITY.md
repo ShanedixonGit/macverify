@@ -67,7 +67,21 @@ report before you send it anywhere.
 
 ## How to check this yourself
 
-Run these in a checkout. Each should produce the stated result.
+Every claim above is also an automated test. The suite parses each module with
+`ast` and asserts these properties against the code itself, so a change that
+breaks one fails CI rather than quietly shipping:
+
+```sh
+/usr/bin/python3 -m unittest discover -s tests -t .
+```
+
+`tests/test_guarantees.py` covers the imports, calls and constants;
+`tests/test_redaction.py` plants credentials in a temporary `$HOME` and asserts
+none of them reach any output; `tests/test_degradation.py` runs every collector
+against an empty home and asserts none raise.
+
+To check by hand instead, run these in a checkout. Each should produce the
+stated result.
 
 ```sh
 grep -rn "shell=True\|os\.system\|os\.popen\|check_output" --include='*.py' .

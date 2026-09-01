@@ -1,0 +1,57 @@
+name: Bug report
+description: Something macverify did wrong, or a domain that failed to collect.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not paste a full `audit_*.json`. It names your host and account and lists
+        your applications, SSH key paths, privacy grants and listening ports. Quote
+        the specific field or finding instead.
+  - type: input
+    id: version
+    attributes:
+      label: macverify version
+      description: Output of `macverify --version`
+      placeholder: macverify 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and architecture
+      placeholder: 15.7.3, Apple silicon
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      description: Output of `python3 --version`, and say whether it is /usr/bin/python3 or another install
+      placeholder: 3.9.6 (/usr/bin/python3)
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you ran, what you expected, what you got.
+      placeholder: |
+        Ran: macverify --only storage
+        Expected: a storage section
+        Got: status "error"
+    validations:
+      required: true
+  - type: textarea
+    id: check
+    attributes:
+      label: Output of `macverify --check`
+      description: This reports what your Mac can be audited for. It collects nothing.
+      render: text
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Before submitting
+      options:
+        - label: I have removed host, account and credential detail from anything I pasted.
+          required: true

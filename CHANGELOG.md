@@ -2,6 +2,21 @@
 
 Notable changes to macverify. Dates are ISO 8601.
 
+## Unreleased
+
+### Added
+
+- Test suite (stdlib `unittest`, no test dependencies) asserting the read-only,
+  offline, no-elevation and no-secret-capture guarantees directly against the
+  source, plus redaction, degradation, CLI and packaging tests.
+- GitHub Actions CI on macOS across Python 3.9-3.13, the runner's stock
+  `/usr/bin/python3`, and a job that builds the distributions and checks the
+  wheel ships only the package.
+- Release workflow publishing to PyPI on a GitHub Release via Trusted
+  Publishing, gated on the tag matching the version in `pyproject.toml`.
+- Issue and pull request templates, `CODE_OF_CONDUCT.md`, and Dependabot for
+  GitHub Actions.
+
 ## [1.0.0] - 2026-09-01
 
 First public release.

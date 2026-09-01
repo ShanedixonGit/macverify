@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: ${{ matrix.os }} · Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-13
+            python: "3.9"
+          - os: macos-13
+            python: "3.10"
+          - os: macos-latest
+            python: "3.11"
+          - os: macos-latest
+            python: "3.12"
+          - os: macos-latest
+            python: "3.13"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Confirm there are no dependencies to install
+        run: |
+          if grep -qE '^\s*dependencies\s*=' pyproject.toml; then
+            echo "pyproject.toml declares runtime dependencies; macverify must stay stdlib-only" >&2
+            exit 1
+          fi
+          echo "no runtime dependencies declared"
+
+      - name: Compile every module
+        run: python -m compileall -q macverify
+
+      - name: Run the test suite
+        run: python -m unittest discover -s tests -t . -v
+
+      - name: Smoke test the CLI
+        run: |
+          python -m macverify --version
+          python -m macverify --list-domains
+          python -m macverify --check
+
+  stock-interpreter:
+    name: Stock macOS python3
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Report the interpreter a stock Mac ships
+        run: /usr/bin/python3 --version
+
+      - name: Compile and test on it
+        run: |
+          /usr/bin/python3 -m compileall -q macverify
+          /usr/bin/python3 -m unittest discover -s tests -t .
+
+      - name: Full audit run
+        run: /usr/bin/python3 -m macverify --verbose
+
+  install:
+    name: Install and entry point
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build the distributions
+        run: |
+          python -m pip install --upgrade build
+          python -m build
+
+      - name: Check the wheel ships only the package
+        run: |
+          python - <<'PY'
+          import glob, zipfile
+          wheel = glob.glob("dist/*.whl")[0]
+          names = zipfile.ZipFile(wheel).namelist()
+          tops = sorted({name.split("/")[0] for name in names})
+          print("wheel top level:", tops)
+          assert tops == ["macverify", "macverify-1.0.0.dist-info"], tops
+          strays = [n for n in names if "brand" in n or "examples" in n or "tests" in n]
+          assert not strays, strays
+          print("no stray files in the wheel")
+          PY
+
+      - name: Install into a clean environment and run it
+        run: |
+          python -m venv /tmp/probe
+          /tmp/probe/bin/pip install --no-cache-dir dist/*.whl
+          test -z "$(/tmp/probe/bin/pip show macverify | grep '^Requires: .')" || (echo "macverify gained a dependency" >&2; exit 1)
+          /tmp/probe/bin/macverify --version
+          /tmp/probe/bin/macverify --help > /dev/null
+          /tmp/probe/bin/macverify --only toolchain --json-only
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: distributions
+          path: dist/*

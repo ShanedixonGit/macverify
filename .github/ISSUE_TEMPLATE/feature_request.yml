@@ -1,0 +1,32 @@
+name: Feature request
+description: A new check, collector, or flag.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        macverify is read-only, offline, no-sudo and dependency-free. A proposal that
+        needs a network call, elevation, a write to system state or a third-party
+        package will not be accepted, however useful it is. See CONTRIBUTING.md.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would you learn about your Mac that you cannot learn today?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Where does that information live on disk?
+      description: The file, directory or command that exposes it, and whether reading it needs elevation.
+    validations:
+      required: true
+  - type: checkboxes
+    id: guarantees
+    attributes:
+      label: Does this fit the guarantees?
+      options:
+        - label: It can be read without sudo.
+        - label: It can be read without a network request.
+        - label: It needs no third-party package.
+        - label: It reads only; it changes nothing.
