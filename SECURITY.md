@@ -81,18 +81,20 @@ none of them reach any output; `tests/test_degradation.py` runs every collector
 against an empty home and asserts none raise.
 
 To check by hand instead, run these in a checkout. Each should produce the
-stated result.
+stated result. They are scoped to `macverify/`, the shipped package; the test
+suite names these same constructs in order to assert their absence, so an
+unscoped grep matches the tests that enforce the claim.
 
 ```sh
-grep -rn "shell=True\|os\.system\|os\.popen\|check_output" --include='*.py' .
-grep -rnE "\b(eval|exec)[[:space:]]*\(|pickle|marshal\.loads|yaml\.load" --include='*.py' .
-grep -rn "urllib\|requests\.\|http\.client\|urlopen\|httpx\|ftplib\|smtplib" --include='*.py' .
+grep -rn "shell=True\|os\.system\|os\.popen\|check_output" --include='*.py' macverify/
+grep -rnE "\b(eval|exec)[[:space:]]*\(|pickle|marshal\.loads|yaml\.load" --include='*.py' macverify/
+grep -rn "urllib\|requests\.\|http\.client\|urlopen\|httpx\|ftplib\|smtplib" --include='*.py' macverify/
 ```
 
 All three return nothing.
 
 ```sh
-grep -rn "socket\." --include='*.py' .
+grep -rn "socket\." --include='*.py' macverify/
 ```
 
 Returns exactly one line: `socket.gethostname()` in `macverify/sysinfo.py`.

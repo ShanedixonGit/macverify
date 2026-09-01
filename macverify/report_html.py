@@ -6,7 +6,7 @@ from .findings import SEVERITY_ORDER
 MAX_ROWS = 250
 MAX_DEPTH = 6
 
-STYLE = """
+STYLE = r"""
 :root {
   color-scheme: light;
   --bg: #ffffff;
@@ -199,7 +199,7 @@ details.raw { border-top: 1px solid var(--line); }
 details.raw > summary { cursor: pointer; padding: 11px 0; font-size: var(--step-1); color: var(--ink-2); list-style: none; display: flex; align-items: center; gap: 8px; }
 details.raw > summary::-webkit-details-marker { display: none; }
 details.raw > summary::before { content: "+"; font-family: var(--mono); color: var(--ink-3); }
-details.raw[open] > summary::before { content: "\\2212"; }
+details.raw[open] > summary::before { content: "\2212"; }
 details.raw > summary:hover { color: var(--ink); }
 .raw-body { padding: 4px 0 22px; }
 
@@ -316,7 +316,7 @@ details.scope[open] > summary::before { content: "\2212"; }
 }
 """
 
-SCRIPT = """
+SCRIPT = r"""
 (function () {
   var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab"));
   var views = {};

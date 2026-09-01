@@ -5,7 +5,7 @@
 
 [![CI](https://github.com/ShanedixonGit/macverify/actions/workflows/ci.yml/badge.svg)](https://github.com/ShanedixonGit/macverify/actions/workflows/ci.yml) [![PyPI](https://img.shields.io/pypi/v/macverify.svg)](https://pypi.org/project/macverify/) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-> **macverify 1.0.0** — macOS 11+, Python 3.9+, zero dependencies, fully offline.
+> **macverify 1.0.1** — macOS 11+, Python 3.9+, zero dependencies, fully offline.
 
 A read-only, offline inventory of a Mac: what is installed, what runs at login,
 what listens on the network, which protections are on, where credential-shaped
@@ -57,9 +57,9 @@ This tool reads your machine, so do not take its word for it. From a clone,
 these must all return nothing:
 
 ```sh
-grep -rn "shell=True\|os\.system\|os\.popen" --include='*.py' .
-grep -rnE "\b(eval|exec)[[:space:]]*\(|pickle" --include='*.py' .
-grep -rn "urllib\|requests\.\|http\.client\|urlopen\|httpx" --include='*.py' .
+grep -rn "shell=True\|os\.system\|os\.popen" --include='*.py' macverify/
+grep -rnE "\b(eval|exec)[[:space:]]*\(|pickle" --include='*.py' macverify/
+grep -rn "urllib\|requests\.\|http\.client\|urlopen\|httpx" --include='*.py' macverify/
 ```
 
 No shell execution, no dynamic evaluation, no network client. The same claims

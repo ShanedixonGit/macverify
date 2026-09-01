@@ -2,10 +2,57 @@
 
 Notable changes to macverify. Dates are ISO 8601.
 
-## Unreleased
+## [1.0.1] - 2026-09-01
+
+### Fixed
+
+- **The HTML report rendered as a nav bar above a blank page.** `STYLE` and
+  `SCRIPT` in `report_html.py` were plain Python triple-quoted strings, so
+  Python consumed the escape sequences meant for the browser. `lines.join("\n")`
+  reached the page as a string literal broken across a real newline, which is a
+  JavaScript syntax error; because the whole report script is a single IIFE, the
+  parse failure took every behaviour with it. Tab counts still rendered (they are
+  static markup) but no section was ever unhidden, tabs did not respond to
+  clicks, and search, copy buttons and tooltips were all dead. Both blocks are
+  now raw string literals.
+- Two CSS rules emitted `content: "\x912"` instead of `content: "\2212"`, from
+  the same cause — Python read `\221` as an octal escape — so the collapse
+  marker on the manual-steps and scope sections was a control character rather
+  than a minus sign.
+- The verification greps in `README.md` and `SECURITY.md` were documented as
+  returning nothing, but matched `tests/test_guarantees.py`, which names the
+  forbidden constructs in order to assert their absence. They are now scoped to
+  `macverify/`, the shipped package, so each claim holds as written again.
 
 ### Added
 
+- Report integrity tests (`tests/test_report_html.py`): the rendered document
+  carries no control characters, parses, has a section behind every tab and jump
+  target, and its inline script closes every string literal on the line that
+  opens it. Five of the ten fail against the source as it shipped in 1.0.0.
+
+## [1.0.0] - 2026-09-01
+
+First public release.
+
+### Added
+
+- Sixteen read-only collectors: `toolchain`, `packages`, `shell_env`,
+  `hardware`, `storage`, `services`, `containers`, `network`, `security`,
+  `identity`, `secrets`, `permissions`, `claude_code`, `github_copilot`,
+  `openai_codex`, `ai_assistants`.
+- AI-assistant family covering Claude Code, GitHub Copilot and OpenAI Codex,
+  with per-item context cost and a cross-tool collector that flags a project
+  carrying more than one of `CLAUDE.md`, `AGENTS.md` and
+  `.github/copilot-instructions.md`.
+- Self-contained HTML report, full JSON dataset, `remediation.md` quick-fix
+  plan, and `ai_assistant_findings.json`.
+- Quick-fix tiers: `inspect` (read-only), `apply` (reversible), `careful`
+  (destructive, elevated or not trivially undone), plus manual steps.
+- `--check` to report what this Mac can be audited for without collecting.
+- English and Spanish report labels via `--lang`.
+- `SKILL.md`, a self-contained skill that lets Claude Code or Codex run the
+  audit and triage the findings.
 - Test suite (stdlib `unittest`, no test dependencies) asserting the read-only,
   offline, no-elevation and no-secret-capture guarantees directly against the
   source, plus redaction, degradation, CLI and packaging tests.
@@ -32,29 +79,6 @@ Notable changes to macverify. Dates are ISO 8601.
 - Test credentials are assembled at runtime so no credential-shaped literal is
   committed; this was tripping GitHub secret scanning and macverify's own
   detector.
-
-## [1.0.0] - 2026-09-01
-
-First public release.
-
-### Added
-
-- Sixteen read-only collectors: `toolchain`, `packages`, `shell_env`,
-  `hardware`, `storage`, `services`, `containers`, `network`, `security`,
-  `identity`, `secrets`, `permissions`, `claude_code`, `github_copilot`,
-  `openai_codex`, `ai_assistants`.
-- AI-assistant family covering Claude Code, GitHub Copilot and OpenAI Codex,
-  with per-item context cost and a cross-tool collector that flags a project
-  carrying more than one of `CLAUDE.md`, `AGENTS.md` and
-  `.github/copilot-instructions.md`.
-- Self-contained HTML report, full JSON dataset, `remediation.md` quick-fix
-  plan, and `ai_assistant_findings.json`.
-- Quick-fix tiers: `inspect` (read-only), `apply` (reversible), `careful`
-  (destructive, elevated or not trivially undone), plus manual steps.
-- `--check` to report what this Mac can be audited for without collecting.
-- English and Spanish report labels via `--lang`.
-- `SKILL.md`, a self-contained skill that lets Claude Code or Codex run the
-  audit and triage the findings.
 
 ### Security
 
