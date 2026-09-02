@@ -2,9 +2,42 @@
 
 Notable changes to macverify. Dates are ISO 8601.
 
-## Unreleased
+## [1.1.0] - 2026-09-02
+
+### Added
+
+- macverify now asks where to save before it starts collecting, so the reports
+  land somewhere findable instead of only under `~/.macverify/reports`. Press
+  Enter for the default, or type a folder; an unusable folder is reported and
+  asked again rather than failing after the run. `--out DIR` names the folder
+  outright and `--no-prompt` takes the default without asking, and a run whose
+  input is not a terminal never asks, so scripts, CI and `SKILL.md` are
+  unaffected. A directory macverify creates is still `0700` and every report
+  file `0600`, wherever it is written.
+- The finished report's path is printed as a `file://` link so it opens straight
+  from the terminal.
+
+### Changed
+
+- New mark: a checkmark drawn as a grid of rounded squares with an amber final
+  stroke, replacing the five-bar chart mark. Ink `#0F1012` and accent `#E3A62F`
+  are unchanged, so the wordmark is untouched and the root `README.md` header
+  needed no edit. The mark now ships as PNG across favicon, touch-icon and
+  display sizes; `icon-*.svg`, `logo-*.svg` and `avatar-*.svg` were removed
+  rather than left behind showing the retired identity, which leaves the current
+  mark with no vector source — noted in `.github/brand/README.md`.
+- `Development Status` classifier moved from Beta to Production/Stable.
+
+### Removed
+
+- The gitignored `macverify/brand/` working folder, which held a second copy of
+  the retired mark inside the importable package directory, and the `.gitignore`
+  rule that existed only to hide it.
 
 ### Fixed
+
+- A run that could not create its output directory printed the error but exited
+  `0`, so a caller saw success and no reports. It now exits `1`.
 
 - The source distribution shipped `tests/` without `tests/__init__.py`, so the
   verification command the README gives — `python3 -m unittest discover -s tests

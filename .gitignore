@@ -12,9 +12,6 @@ ai_assistant_audit.md
 # Source archives.
 *.zip
 
-# Working brand folder. The published subset that the README and GitHub need
-# lives in .github/brand/; this is the unversioned working copy.
-macverify/brand/
 
 # Python
 __pycache__/

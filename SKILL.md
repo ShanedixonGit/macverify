@@ -28,10 +28,13 @@ If `macverify` is on `PATH`, run it from anywhere. If the user has a clone
 instead, run `python3 -m macverify` from inside it.
 
 ```sh
-macverify --quick-fixes
+macverify --quick-fixes --no-prompt
 ```
 
 Reports land in `~/.macverify/reports/`, owner-only. A run takes 30-60 seconds.
+`--no-prompt` matters here: run from a terminal without it, macverify asks where
+to save and waits for an answer, which would stall an unattended run and could
+put the reports somewhere other than the path below.
 
 If a recent report already exists (`ls -t ~/.macverify/reports/audit_*.json | head -1`,
 check `generated_at`), read that instead of re-running. Re-run when the user has
@@ -131,7 +134,7 @@ Rules while doing this:
 After the user applies fixes, re-run and diff the counts:
 
 ```sh
-macverify --json-only
+macverify --json-only --no-prompt
 ```
 
 Compare `summary.finding_counts` and confirm the specific finding `id`s are gone.

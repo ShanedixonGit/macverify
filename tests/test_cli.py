@@ -126,6 +126,58 @@ class Output(unittest.TestCase):
         self.assertIn("offline", self.out)
 
 
+class SaveLocation(unittest.TestCase):
+    def test_a_non_interactive_run_never_asks(self):
+        code, out, err = run_cli(["--only", "storage", "--json-only"])
+        self.assertEqual(0, code, err)
+        self.assertNotIn("save to>", out)
+        self.assertNotIn("Where should the reports be saved", out)
+
+    def test_no_prompt_is_accepted(self):
+        code, out, _ = run_cli(["--help"])
+        self.assertIn("--no-prompt", out)
+
+    def test_out_is_honoured_without_asking(self):
+        target = tempfile.mkdtemp(prefix="macverify-out-")
+        try:
+            code, out, err = run_cli(["--only", "storage", "--json-only", "--out", target])
+            self.assertEqual(0, code, err)
+            self.assertNotIn("save to>", out)
+            self.assertTrue([n for n in os.listdir(target) if n.endswith(".json")])
+        finally:
+            shutil.rmtree(target, ignore_errors=True)
+
+    def test_a_created_directory_is_owner_only(self):
+        from macverify import cli
+
+        parent = tempfile.mkdtemp(prefix="macverify-mkdir-")
+        try:
+            made = cli._prepare_directory(os.path.join(parent, "nested", "reports"))
+            self.assertTrue(os.path.isdir(made))
+            self.assertEqual(0o700, stat.S_IMODE(os.stat(made).st_mode))
+        finally:
+            shutil.rmtree(parent, ignore_errors=True)
+
+    def test_the_report_url_is_encoded_and_local(self):
+        from macverify import cli
+
+        url = cli._file_url("/tmp/a folder/audit #1.html")
+        self.assertTrue(url.startswith("file:///"))
+        self.assertNotIn(" ", url)
+        self.assertIn("%20", url)
+        self.assertIn("%23", url)
+
+    def test_an_unusable_output_directory_exits_non_zero(self):
+        code, _, err = run_cli(["--only", "storage", "--json-only", "--out", "/System/nope/macverify"])
+        self.assertNotEqual(0, code)
+        self.assertIn("cannot create output directory", err)
+
+    def test_home_is_shown_as_a_tilde(self):
+        from macverify import cli
+
+        self.assertEqual("~/x", cli._display_path(os.path.join(os.path.expanduser("~"), "x")))
+
+
 class Packaging(unittest.TestCase):
     def setUp(self):
         with open(os.path.join(REPO_ROOT, "pyproject.toml"), "r", encoding="utf-8") as handle:

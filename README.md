@@ -5,7 +5,7 @@
 
 [![CI](https://github.com/ShanedixonGit/macverify/actions/workflows/ci.yml/badge.svg)](https://github.com/ShanedixonGit/macverify/actions/workflows/ci.yml) [![PyPI](https://img.shields.io/pypi/v/macverify.svg)](https://pypi.org/project/macverify/) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-> **macverify 1.0.1** — macOS 11+, Python 3.9+, zero dependencies, fully offline.
+> **macverify 1.1.0** — macOS 11+, Python 3.9+, zero dependencies, fully offline.
 
 A read-only, offline inventory of a Mac: what is installed, what runs at login,
 what listens on the network, which protections are on, where credential-shaped
@@ -80,7 +80,23 @@ macverify             # the full run
 ```
 
 `--check` collects nothing, and is the safe way to see what a run would cover.
-A full run takes 30-60 seconds, writing to `~/.macverify/reports` (`0700`):
+A full run takes 30-60 seconds. It asks where to save first, so the reports land
+somewhere you will find them again:
+
+```
+Where should the reports be saved?
+  press Enter for ~/.macverify/reports
+  or type a folder, for example ~/Downloads/macverify
+  a report names your host, apps and credential-shaped values, so avoid a folder that syncs
+save to>
+```
+
+Press Enter to accept the default, `~/.macverify/reports` (`0700`). Pass `--out
+DIR` to name the folder outright, or `--no-prompt` to take the default without
+being asked; a run whose input is not a terminal never asks, so scripts and CI
+are unaffected. A directory macverify creates is `0700` and every report file is
+`0600`, wherever you put it. The path of the finished report is printed as a
+`file://` link at the end of the run.
 
 ```
   -h, --help      show this help message and exit
@@ -89,7 +105,9 @@ A full run takes 30-60 seconds, writing to `~/.macverify/reports` (`0700`):
   --skip DOMAIN   skip this domain (repeatable)
   --json-only     write the JSON dataset only
   --html-only     write the HTML report only
-  --out DIR       output directory (default: ~/.macverify/reports)
+  --out DIR       output directory, used without asking (default:
+                  ~/.macverify/reports)
+  --no-prompt     do not ask where to save; use the default directory
   --timeout S     per-command timeout in seconds (default: 8)
   --lang {en,es}  report label language (default: en)
   --project PATH  extra project root to inspect for AI assistant config

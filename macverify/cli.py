@@ -20,7 +20,8 @@ def build_parser():
     parser.add_argument("--skip", action="append", metavar="DOMAIN", help="skip this domain (repeatable)")
     parser.add_argument("--json-only", action="store_true", help="write the JSON dataset only")
     parser.add_argument("--html-only", action="store_true", help="write the HTML report only")
-    parser.add_argument("--out", metavar="DIR", default=REPORT_DIR, help="output directory (default: ~/.macverify/reports)")
+    parser.add_argument("--out", metavar="DIR", default=None, help="output directory, used without asking (default: ~/.macverify/reports)")
+    parser.add_argument("--no-prompt", action="store_true", help="do not ask where to save; use the default directory")
     parser.add_argument("--timeout", type=float, default=8.0, metavar="S", help="per-command timeout in seconds (default: 8)")
     parser.add_argument("--lang", choices=("en", "es"), default="en", help="report label language (default: en)")
     parser.add_argument("--project", action="append", metavar="PATH", help="extra project root to inspect for AI assistant config (repeatable)")
@@ -29,6 +30,53 @@ def build_parser():
     parser.add_argument("--quick-fixes", action="store_true", help="print the quick-fix plan to stdout as well as writing the reports")
     parser.add_argument("--check", action="store_true", help="report what this machine can be audited for, then exit without collecting")
     return parser
+
+
+def _prepare_directory(path):
+    out_dir = os.path.abspath(os.path.expanduser(path))
+    newly_created = not os.path.isdir(out_dir)
+    os.makedirs(out_dir, mode=0o700, exist_ok=True)
+    if newly_created or out_dir == os.path.abspath(REPORT_DIR):
+        os.chmod(out_dir, 0o700)
+    if out_dir == os.path.abspath(REPORT_DIR):
+        os.chmod(os.path.dirname(out_dir), 0o700)
+    return out_dir
+
+
+def _interactive():
+    try:
+        return sys.stdin.isatty() and sys.stdout.isatty()
+    except (AttributeError, ValueError):
+        return False
+
+
+def _ask_where_to_save(default):
+    sys.stdout.write("Where should the reports be saved?\n")
+    sys.stdout.write("  press Enter for %s\n" % _display_path(default))
+    sys.stdout.write("  or type a folder, for example ~/Downloads/macverify\n")
+    sys.stdout.write("  a report names your host, apps and credential-shaped values, so avoid a folder that syncs\n")
+    for _ in range(3):
+        try:
+            reply = input("save to> ").strip()
+        except (EOFError, KeyboardInterrupt):
+            sys.stdout.write("\n")
+            return default
+        try:
+            return _prepare_directory(reply or default)
+        except OSError as exc:
+            sys.stdout.write("cannot use that folder: %s\n" % exc)
+    sys.stdout.write("using %s\n" % _display_path(default))
+    return _prepare_directory(default)
+
+
+def _display_path(path):
+    absolute = os.path.abspath(os.path.expanduser(path))
+    home = os.path.expanduser("~")
+    if absolute == home:
+        return "~"
+    if absolute.startswith(home + os.sep):
+        return "~" + absolute[len(home):]
+    return absolute
 
 
 def _log(enabled, message):
@@ -75,6 +123,13 @@ def main(argv=None):
     projects = [os.path.abspath(os.path.expanduser(path)) for path in (args.project or [])]
     ctx = Context(timeout=max(1.0, args.timeout), projects=projects, verbose=args.verbose, lang=args.lang)
 
+    chosen = args.out
+    prepared = None
+    if chosen is None:
+        chosen = REPORT_DIR
+        if not args.no_prompt and _interactive():
+            prepared = _ask_where_to_save(REPORT_DIR)
+
     started = datetime.datetime.now(datetime.timezone.utc)
     _log(args.verbose, "running %d domains with a %.0fs per-command timeout" % (len(domains), ctx.timeout))
     results = runner.run_all(domains, ctx)
@@ -117,17 +172,14 @@ def main(argv=None):
         "domains": {domain: results[domain] for domain in domains},
     }
 
-    out_dir = os.path.abspath(os.path.expanduser(args.out))
-    try:
-        newly_created = not os.path.isdir(out_dir)
-        os.makedirs(out_dir, mode=0o700, exist_ok=True)
-        if newly_created or out_dir == os.path.abspath(REPORT_DIR):
-            os.chmod(out_dir, 0o700)
-        if out_dir == os.path.abspath(REPORT_DIR):
-            os.chmod(os.path.dirname(out_dir), 0o700)
-    except OSError as exc:
-        sys.stderr.write("cannot create output directory %s: %s\n" % (out_dir, exc))
-        return 0
+    if prepared is not None:
+        out_dir = prepared
+    else:
+        try:
+            out_dir = _prepare_directory(chosen)
+        except OSError as exc:
+            sys.stderr.write("cannot create output directory %s: %s\n" % (os.path.abspath(os.path.expanduser(chosen)), exc))
+            return 1
 
     written = []
     if not args.html_only:
@@ -175,7 +227,20 @@ def main(argv=None):
     sys.stdout.write("this audit reads configuration only; it cannot detect malware. Run an anti-malware scan as well - see the Quick fixes tab.\n")
     for path in written:
         sys.stdout.write("wrote %s\n" % path)
+    report = next((path for path in written if path.endswith(".html")), None)
+    if report:
+        sys.stdout.write("open the report: %s\n" % _file_url(report))
     return 0
+
+
+def _file_url(path):
+    safe = []
+    for character in path:
+        if character.isalnum() or character in "/-_.~":
+            safe.append(character)
+        else:
+            safe.extend("%%%02X" % byte for byte in bytearray(character.encode("utf-8")))
+    return "file://" + "".join(safe)
 
 
 def _print_check(host):

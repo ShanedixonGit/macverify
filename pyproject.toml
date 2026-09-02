@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "macverify"
-version = "1.0.1"
+version = "1.1.0"
 description = "Read-only, offline inventory of a macOS user space and its AI assistant configuration"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -12,7 +12,7 @@ license = { file = "LICENSE" }
 authors = [{ name = "Shane Dixon" }]
 keywords = ["macos", "audit", "inventory", "read-only", "offline", "claude-code", "copilot", "codex"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
