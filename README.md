@@ -42,6 +42,16 @@ Or with pip, if you do not use pipx:
 pip install --user macverify
 ```
 
+To upgrade later:
+
+```sh
+pipx upgrade macverify
+```
+
+macverify never checks for updates itself. Checking would mean a network
+request, and this tool makes none — see [SECURITY.md](SECURITY.md). Watch
+**Releases** on this repository if you want to be told when a version ships.
+
 No build step, no dependencies. To install nothing at all, clone and run in
 place:
 

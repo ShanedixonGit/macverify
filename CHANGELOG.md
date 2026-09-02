@@ -2,6 +2,27 @@
 
 Notable changes to macverify. Dates are ISO 8601.
 
+## Unreleased
+
+### Added
+
+- `icon.svg` and `mark.svg`, restoring a scalable source for the mark. Both were
+  traced from `icon-1024.png` — grid origin, pitch, cell size and corner radius
+  recovered from the bitmap, then checked by rasterising the result and diffing
+  it against the PNG, which matches to within antialiasing. `.github/brand/README.md`
+  records that they are a trace rather than the original artwork.
+- README now says how to upgrade, which it never did. It also states that
+  macverify does not check for updates itself, because checking would be a
+  network request and the tool makes none.
+
+### Changed
+
+- GitHub Actions bumped to current majors: `checkout` v4 to v7, `setup-python`
+  v5 to v7, `upload-artifact` v4 to v7, `download-artifact` v4 to v8. Applied
+  together in one commit rather than through four Dependabot pull requests that
+  each edited the same two workflow files and would have conflicted with one
+  another.
+
 ## [1.1.0] - 2026-09-02
 
 ### Added

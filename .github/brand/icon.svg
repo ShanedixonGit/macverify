@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="macverify">
+  <rect width="1024" height="1024" rx="212" fill="#FAFAF9"/>
+  <g id="mark">
+    <g fill="#0F1012">
+      <rect x="663" y="204" width="52" height="52" rx="18.8"/>
+      <rect x="663" y="255" width="52" height="52" rx="18.8"/>
+      <rect x="714" y="255" width="52" height="52" rx="18.8"/>
+      <rect x="612" y="306" width="52" height="52" rx="18.8"/>
+      <rect x="663" y="306" width="52" height="52" rx="18.8"/>
+      <rect x="714" y="306" width="52" height="52" rx="18.8"/>
+      <rect x="765" y="306" width="52" height="52" rx="18.8"/>
+      <rect x="561" y="357" width="52" height="52" rx="18.8"/>
+      <rect x="612" y="357" width="52" height="52" rx="18.8"/>
+      <rect x="663" y="357" width="52" height="52" rx="18.8"/>
+      <rect x="714" y="357" width="52" height="52" rx="18.8"/>
+      <rect x="153" y="408" width="52" height="52" rx="18.8"/>
+      <rect x="204" y="408" width="52" height="52" rx="18.8"/>
+      <rect x="510" y="408" width="52" height="52" rx="18.8"/>
+      <rect x="561" y="408" width="52" height="52" rx="18.8"/>
+      <rect x="612" y="408" width="52" height="52" rx="18.8"/>
+      <rect x="663" y="408" width="52" height="52" rx="18.8"/>
+      <rect x="102" y="459" width="52" height="52" rx="18.8"/>
+      <rect x="153" y="459" width="52" height="52" rx="18.8"/>
+      <rect x="204" y="459" width="52" height="52" rx="18.8"/>
+      <rect x="255" y="459" width="52" height="52" rx="18.8"/>
+      <rect x="510" y="459" width="52" height="52" rx="18.8"/>
+      <rect x="561" y="459" width="52" height="52" rx="18.8"/>
+      <rect x="612" y="459" width="52" height="52" rx="18.8"/>
+      <rect x="663" y="459" width="52" height="52" rx="18.8"/>
+      <rect x="102" y="510" width="52" height="52" rx="18.8"/>
+      <rect x="153" y="510" width="52" height="52" rx="18.8"/>
+      <rect x="204" y="510" width="52" height="52" rx="18.8"/>
+      <rect x="255" y="510" width="52" height="52" rx="18.8"/>
+      <rect x="306" y="510" width="52" height="52" rx="18.8"/>
+      <rect x="459" y="510" width="52" height="52" rx="18.8"/>
+      <rect x="510" y="510" width="52" height="52" rx="18.8"/>
+      <rect x="561" y="510" width="52" height="52" rx="18.8"/>
+      <rect x="612" y="510" width="52" height="52" rx="18.8"/>
+      <rect x="153" y="561" width="52" height="52" rx="18.8"/>
+      <rect x="204" y="561" width="52" height="52" rx="18.8"/>
+      <rect x="255" y="561" width="52" height="52" rx="18.8"/>
+      <rect x="306" y="561" width="52" height="52" rx="18.8"/>
+      <rect x="408" y="561" width="52" height="52" rx="18.8"/>
+      <rect x="459" y="561" width="52" height="52" rx="18.8"/>
+      <rect x="510" y="561" width="52" height="52" rx="18.8"/>
+      <rect x="561" y="561" width="52" height="52" rx="18.8"/>
+      <rect x="204" y="612" width="52" height="52" rx="18.8"/>
+      <rect x="255" y="612" width="52" height="52" rx="18.8"/>
+      <rect x="306" y="612" width="52" height="52" rx="18.8"/>
+      <rect x="357" y="612" width="52" height="52" rx="18.8"/>
+      <rect x="408" y="612" width="52" height="52" rx="18.8"/>
+      <rect x="459" y="612" width="52" height="52" rx="18.8"/>
+      <rect x="510" y="612" width="52" height="52" rx="18.8"/>
+      <rect x="255" y="663" width="52" height="52" rx="18.8"/>
+      <rect x="306" y="663" width="52" height="52" rx="18.8"/>
+      <rect x="357" y="663" width="52" height="52" rx="18.8"/>
+      <rect x="408" y="663" width="52" height="52" rx="18.8"/>
+      <rect x="459" y="663" width="52" height="52" rx="18.8"/>
+      <rect x="306" y="714" width="52" height="52" rx="18.8"/>
+      <rect x="357" y="714" width="52" height="52" rx="18.8"/>
+      <rect x="408" y="714" width="52" height="52" rx="18.8"/>
+      <rect x="459" y="714" width="52" height="52" rx="18.8"/>
+      <rect x="357" y="765" width="52" height="52" rx="18.8"/>
+      <rect x="408" y="765" width="52" height="52" rx="18.8"/>
+    </g>
+    <g fill="#E3A62F">
+      <rect x="765" y="102" width="52" height="52" rx="18.8"/>
+      <rect x="816" y="102" width="52" height="52" rx="18.8"/>
+      <rect x="714" y="153" width="52" height="52" rx="18.8"/>
+      <rect x="765" y="153" width="52" height="52" rx="18.8"/>
+      <rect x="816" y="153" width="52" height="52" rx="18.8"/>
+      <rect x="867" y="153" width="52" height="52" rx="18.8"/>
+      <rect x="714" y="204" width="52" height="52" rx="18.8"/>
+      <rect x="765" y="204" width="52" height="52" rx="18.8"/>
+      <rect x="816" y="204" width="52" height="52" rx="18.8"/>
+      <rect x="765" y="255" width="52" height="52" rx="18.8"/>
+      <rect x="816" y="255" width="52" height="52" rx="18.8"/>
+    </g>
+  </g>
+</svg>
