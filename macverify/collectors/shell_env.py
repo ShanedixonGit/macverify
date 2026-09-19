@@ -3,7 +3,7 @@ import re
 import stat as statmod
 
 from .. import findings as F
-from .. import fsutil, shell, sysinfo
+from .. import fsutil, sysinfo
 from ..context import default_context
 from .secrets import redact
 
@@ -157,7 +157,6 @@ def _parse_profile(family, path):
         "sourced": [],
         "path_mutations": [],
     }
-    in_function = 0
     for number, line in enumerate(text.splitlines(), start=1):
         stripped = line.strip()
         if not stripped or stripped.startswith("#"):
@@ -195,7 +194,6 @@ def _parse_profile(family, path):
             continue
         if family == "fish" and stripped.startswith("function "):
             record["functions"].append({"name": stripped.split()[1], "line": number})
-            in_function += 1
     for key in ("aliases", "functions", "exports"):
         record[key] = sorted(record[key], key=lambda item: (item["name"], item["line"]))
     record["counts"] = {key: len(record[key]) for key in ("aliases", "functions", "exports", "sourced", "path_mutations")}

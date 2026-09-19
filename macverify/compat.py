@@ -14,7 +14,7 @@ import sys
 
 from . import fsutil, sysinfo
 
-MINIMUM_PYTHON = (3, 8)
+MINIMUM_PYTHON = (3, 9)
 MINIMUM_MACOS_MAJOR = 11
 TESTED_MACOS_MAJOR = 26
 

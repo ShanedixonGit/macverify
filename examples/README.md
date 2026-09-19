@@ -12,7 +12,9 @@ before running anything.
 | `remediation.md` | The quick-fix plan as pasteable markdown |
 | `ai_assistant_findings.json` | The four AI-assistant domains on their own |
 
-All four land in `~/.macverify/reports` (directory `0700`, files `0600`).
+All four land in `~/.macverify/reports` by default (directory `0700`, files
+`0600`). A run asks where to save first; `--out DIR` names the folder outright
+and `--no-prompt` takes the default without asking.
 
 ## Top level of `audit_<timestamp>.json`
 

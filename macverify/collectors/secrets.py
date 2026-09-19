@@ -2,7 +2,7 @@ import os
 import re
 
 from .. import findings as F
-from .. import fsutil, shell
+from .. import fsutil
 from ..context import default_context
 
 MASK = "*" * 12
@@ -195,7 +195,6 @@ def _git_remotes(roots):
 
 def collect(ctx=None):
     ctx = default_context(ctx)
-    home = fsutil.home()
     hits = []
     scanned = []
     skipped = []

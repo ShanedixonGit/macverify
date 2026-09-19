@@ -90,7 +90,7 @@ def _ssh_keys(ctx):
         current = None
         for number, line in enumerate(text.splitlines(), start=1):
             stripped = line.strip()
-            match = re.match(r"^(?i)host\s+(.+)$", stripped)
+            match = re.match(r"^host\s+(.+)$", stripped, re.IGNORECASE)
             if match:
                 current = {"pattern": match.group(1).strip(), "line": number, "options": []}
                 hosts.append(current)

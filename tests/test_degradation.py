@@ -89,6 +89,48 @@ class Registry(unittest.TestCase):
         self.assertEqual(["toolchain"], selected)
         self.assertEqual(["not_a_domain"], unknown)
 
+    def test_only_and_skip_are_both_applied(self):
+        selected, unknown = registry.resolve(only=["toolchain", "storage"], skip=["storage"])
+        self.assertEqual(["toolchain"], selected)
+        self.assertEqual([], unknown)
+
+    def test_an_unknown_name_in_skip_is_reported(self):
+        selected, unknown = registry.resolve(skip=["storage", "not_a_domain"])
+        self.assertNotIn("storage", selected)
+        self.assertEqual(["not_a_domain"], unknown)
+
+
+class SshConfiguration(unittest.TestCase):
+    """~/.ssh/config is parsed on every supported interpreter.
+
+    The Host line was matched with an inline `(?i)` after `^`, which Python 3.11
+    rejects outright, so the whole identity domain failed for anyone who had an
+    ssh config at all. CI never saw it: its runners have no ~/.ssh/config.
+    """
+
+    def setUp(self):
+        self.home = tempfile.mkdtemp(prefix="macverify-ssh-")
+        os.makedirs(os.path.join(self.home, ".ssh"), mode=0o700)
+        with open(os.path.join(self.home, ".ssh", "config"), "w", encoding="utf-8") as handle:
+            handle.write("Host example\n  HostName example.com\n  User someone\n\nhost lower\n  Port 2222\n")
+        self.previous_home = os.environ.get("HOME")
+        os.environ["HOME"] = self.home
+
+    def tearDown(self):
+        if self.previous_home is None:
+            os.environ.pop("HOME", None)
+        else:
+            os.environ["HOME"] = self.previous_home
+        shutil.rmtree(self.home, ignore_errors=True)
+
+    def test_an_ssh_config_does_not_break_the_identity_domain(self):
+        from macverify.collectors import identity
+
+        payload = identity.collect(Context(timeout=5.0))
+        self.assertEqual("ok", payload.get("status"))
+        self.assertEqual("ok", payload["ssh"].get("status"), payload["ssh"].get("reason"))
+        self.assertEqual(["example", "lower"], [item["pattern"] for item in payload["ssh"]["config_hosts"]])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,7 +1,6 @@
 import html
 
-from . import i18n, quickfix, scope as scope_mod
-from .findings import SEVERITY_ORDER
+from . import i18n, scope as scope_mod
 
 MAX_ROWS = 250
 MAX_DEPTH = 6
@@ -383,7 +382,7 @@ SCRIPT = r"""
     clear.addEventListener("click", function () { search.value = ""; applyFilter(); search.focus(); });
   }
   document.addEventListener("keydown", function (event) {
-    if (event.key === "/" && document.activeElement !== search) { event.preventDefault(); search.focus(); }
+    if (event.key === "/" && search && document.activeElement !== search) { event.preventDefault(); search.focus(); }
   });
 
   function copy(text, button) {
@@ -405,7 +404,7 @@ SCRIPT = r"""
     area.style.opacity = "0";
     document.body.appendChild(area);
     area.select();
-    try { document.execCommand("copy"); done(); } catch (error) { button = null; }
+    try { document.execCommand("copy"); done(); } catch (error) { /* clipboard unavailable */ }
     document.body.removeChild(area);
   }
   document.addEventListener("click", function (event) {
@@ -842,7 +841,8 @@ def _facts_permissions(payload, labels):
         _fact("System TCC database", "%s grants" % system_db.get("grant_count") if system_db.get("status") == "ok" else labels["requires_privileges"]),
         _fact("High-risk grants", "%d" % high, "warning" if high else None,
               hint="full disk access, accessibility, screen recording, input monitoring"),
-        _fact("Candidate apps installed", "%d" % _count(payload.get("installed_candidate_apps"))),
+        _fact("Candidate apps installed", "%d" % sum(
+            1 for app in (_dig(payload, "installed_applications", "applications") or []) if app.get("commonly_privileged"))),
     ]
 
 

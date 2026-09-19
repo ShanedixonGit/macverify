@@ -27,14 +27,12 @@ def load(domain):
 
 
 def resolve(only=None, skip=None):
+    unknown = [name for name in list(only or []) + list(skip or []) if name not in DOMAINS]
     selected = list(DOMAINS)
     if only:
-        wanted = [name for name in only if name in DOMAINS]
-        unknown = [name for name in only if name not in DOMAINS]
-        selected = [name for name in DOMAINS if name in wanted]
-        return selected, unknown
+        wanted = set(only)
+        selected = [name for name in selected if name in wanted]
     if skip:
-        unknown = [name for name in skip if name not in DOMAINS]
-        selected = [name for name in DOMAINS if name not in skip]
-        return selected, unknown
-    return selected, []
+        unwanted = set(skip)
+        selected = [name for name in selected if name not in unwanted]
+    return selected, unknown

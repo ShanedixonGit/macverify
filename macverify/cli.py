@@ -18,8 +18,9 @@ def build_parser():
     parser.add_argument("--version", action="version", version="macverify %s" % __version__, help="print the installed version and exit")
     parser.add_argument("--only", action="append", metavar="DOMAIN", help="run only this domain (repeatable)")
     parser.add_argument("--skip", action="append", metavar="DOMAIN", help="skip this domain (repeatable)")
-    parser.add_argument("--json-only", action="store_true", help="write the JSON dataset only")
-    parser.add_argument("--html-only", action="store_true", help="write the HTML report only")
+    formats = parser.add_mutually_exclusive_group()
+    formats.add_argument("--json-only", action="store_true", help="write the JSON dataset only")
+    formats.add_argument("--html-only", action="store_true", help="write the HTML report only")
     parser.add_argument("--out", metavar="DIR", default=None, help="output directory, used without asking (default: ~/.macverify/reports)")
     parser.add_argument("--no-prompt", action="store_true", help="do not ask where to save; use the default directory")
     parser.add_argument("--timeout", type=float, default=8.0, metavar="S", help="per-command timeout in seconds (default: 8)")
@@ -182,23 +183,23 @@ def main(argv=None):
             return 1
 
     written = []
+    failed = []
+
+    def write(path, text):
+        if _write(path, text):
+            written.append(path)
+        else:
+            failed.append(path)
+
     if not args.html_only:
-        json_path = os.path.join(out_dir, "audit_%s.json" % stamp)
-        _write(json_path, json.dumps(dataset, indent=2, ensure_ascii=False, default=str) + "\n")
-        written.append(json_path)
+        write(os.path.join(out_dir, "audit_%s.json" % stamp), json.dumps(dataset, indent=2, ensure_ascii=False, default=str) + "\n")
 
     if not args.json_only:
-        html_path = os.path.join(out_dir, "audit_%s.html" % stamp)
-        _write(html_path, report_html.render(dataset, args.lang))
-        written.append(html_path)
-
-        md_path = os.path.join(out_dir, "remediation.md")
-        _write(md_path, report_md.render(dataset, args.lang))
-        written.append(md_path)
+        write(os.path.join(out_dir, "audit_%s.html" % stamp), report_html.render(dataset, args.lang))
+        write(os.path.join(out_dir, "remediation.md"), report_md.render(dataset, args.lang))
 
     assistants = {name: results[name] for name in registry.AI_ASSISTANT_DOMAINS if name in results}
     if assistants and not args.html_only:
-        assistant_path = os.path.join(out_dir, "ai_assistant_findings.json")
         payload = {
             "generated_at": dataset["generated_at"],
             "tool": dataset["tool"],
@@ -206,8 +207,7 @@ def main(argv=None):
             "statuses": {name: assistants[name].get("status") for name in sorted(assistants)},
             "findings": [item for item in all_findings if item.get("domain") in registry.AI_ASSISTANT_DOMAINS],
         }
-        _write(assistant_path, json.dumps(payload, indent=2, ensure_ascii=False, default=str) + "\n")
-        written.append(assistant_path)
+        write(os.path.join(out_dir, "ai_assistant_findings.json"), json.dumps(payload, indent=2, ensure_ascii=False, default=str) + "\n")
 
     if args.quick_fixes:
         _print_quick_fixes(plan)
@@ -230,6 +230,9 @@ def main(argv=None):
     report = next((path for path in written if path.endswith(".html")), None)
     if report:
         sys.stdout.write("open the report: %s\n" % _file_url(report))
+    if failed:
+        sys.stderr.write("%d report file(s) could not be written\n" % len(failed))
+        return 1
     return 0
 
 
@@ -294,3 +297,5 @@ def _write(path, text):
         os.chmod(path, 0o600)
     except OSError as exc:
         sys.stderr.write("cannot write %s: %s\n" % (path, exc))
+        return False
+    return True

@@ -65,6 +65,11 @@ class Invocation(unittest.TestCase):
         self.assertEqual(2, code)
         self.assertIn("unrecognized arguments", err)
 
+    def test_asking_for_json_only_and_html_only_is_rejected(self):
+        code, _, err = run_cli(["--json-only", "--html-only"])
+        self.assertEqual(2, code)
+        self.assertIn("not allowed with argument", err)
+
 
 class Output(unittest.TestCase):
     @classmethod
@@ -171,6 +176,22 @@ class SaveLocation(unittest.TestCase):
         code, _, err = run_cli(["--only", "storage", "--json-only", "--out", "/System/nope/macverify"])
         self.assertNotEqual(0, code)
         self.assertIn("cannot create output directory", err)
+
+    def test_a_failed_write_is_reported_to_its_caller(self):
+        from macverify import cli
+
+        self.assertFalse(cli._write("/System/nope/macverify/audit.json", "{}"))
+
+    def test_a_successful_write_is_owner_only(self):
+        from macverify import cli
+
+        target = tempfile.mkdtemp(prefix="macverify-write-")
+        try:
+            path = os.path.join(target, "audit.json")
+            self.assertTrue(cli._write(path, "{}"))
+            self.assertEqual(0o600, stat.S_IMODE(os.stat(path).st_mode))
+        finally:
+            shutil.rmtree(target, ignore_errors=True)
 
     def test_home_is_shown_as_a_tilde(self):
         from macverify import cli

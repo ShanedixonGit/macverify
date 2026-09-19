@@ -1,6 +1,7 @@
 import os
 import re
 
+from .. import aicommon
 from .. import findings as F
 from .. import fsutil, shell
 from ..context import default_context
@@ -25,14 +26,6 @@ NATIVE_CAPABILITIES = {
     "search": ("Grep", "Glob", "WebSearch"),
     "sequentialthinking": ("extended thinking",),
     "todo": ("TodoWrite",),
-}
-
-STOPWORDS = {
-    "the", "a", "an", "and", "or", "for", "with", "when", "use", "using", "used", "this", "that", "to", "of", "in",
-    "on", "by", "is", "are", "be", "it", "its", "as", "at", "from", "into", "you", "your", "should", "can", "will",
-    "any", "all", "not", "but", "if", "then", "than", "also", "via", "per", "up", "out", "over", "before", "after",
-    "skill", "skills", "agent", "agents", "command", "commands", "claude", "code", "user", "users", "need", "needs",
-    "have", "has", "was", "were", "there", "their", "them", "they", "what", "which", "who", "how", "why", "more",
 }
 
 VAGUE_MINIMUM_CHARS = 40
@@ -83,41 +76,6 @@ def parse_frontmatter(text):
             continue
         meta[key] = value.strip().strip("\"'")
     return meta, "\n".join(lines[end + 1:])
-
-
-def _tokens(text):
-    words = re.findall(r"[a-z][a-z0-9_-]{2,}", (text or "").lower())
-    return {word for word in words if word not in STOPWORDS}
-
-
-def _similarity(left, right):
-    if not left or not right:
-        return 0.0, []
-    shared = left & right
-    union = left | right
-    if not union:
-        return 0.0, []
-    return round(len(shared) / float(len(union)), 3), sorted(shared)
-
-
-def _cost(always_bytes, on_demand_bytes):
-    return {
-        "always_loaded_bytes": always_bytes,
-        "always_loaded_tokens_estimate": always_bytes // 4,
-        "on_demand_bytes": on_demand_bytes,
-        "on_demand_tokens_estimate": on_demand_bytes // 4,
-    }
-
-
-def _headings(body, limit=40):
-    outline = []
-    for line in (body or "").splitlines():
-        match = re.match(r"^(#{1,6})\s+(.+?)\s*#*$", line)
-        if match:
-            outline.append({"level": len(match.group(1)), "text": match.group(2)[:120]})
-        if len(outline) >= limit:
-            break
-    return outline
 
 
 def _read_settings(path, scope):
@@ -172,7 +130,7 @@ def _skill_entry(path, scope, scope_detail, active, active_reason):
         "reference_bytes": reference_bytes,
         "allowed_tools": meta.get("allowed-tools") or meta.get("allowedTools"),
         "model": meta.get("model"),
-        "context_cost": _cost(frontmatter_bytes, len(body.encode("utf-8")) + reference_bytes),
+        "context_cost": aicommon.cost(frontmatter_bytes, len(body.encode("utf-8")) + reference_bytes),
     }
 
 
@@ -194,7 +152,7 @@ def _agent_entry(path, scope, scope_detail, active, active_reason):
         "model": meta.get("model"),
         "tools": meta.get("tools"),
         "file_bytes": fsutil.file_size(path),
-        "context_cost": _cost(len(("%s: %s" % (name, description or "")).encode("utf-8")), len(body.encode("utf-8"))),
+        "context_cost": aicommon.cost(len(("%s: %s" % (name, description or "")).encode("utf-8")), len(body.encode("utf-8"))),
     }
 
 
@@ -220,7 +178,7 @@ def _command_entry(path, root, scope, scope_detail, active, active_reason, prefi
         "active": active,
         "active_reason": active_reason,
         "file_bytes": fsutil.file_size(path),
-        "context_cost": _cost(len(("/%s %s" % (name, description or "")).encode("utf-8")), len(body.encode("utf-8"))),
+        "context_cost": aicommon.cost(len(("/%s %s" % (name, description or "")).encode("utf-8")), len(body.encode("utf-8"))),
     }
 
 
@@ -237,8 +195,8 @@ def _claude_md_entry(path, scope, active, active_reason):
         "active": active,
         "active_reason": active_reason,
         "file_bytes": size,
-        "heading_outline": _headings(text),
-        "context_cost": _cost(size if active else 0, 0 if active else size),
+        "heading_outline": aicommon.headings(text),
+        "context_cost": aicommon.cost(size if active else 0, 0 if active else size),
     }
 
 
@@ -673,13 +631,13 @@ def collect(ctx=None):
     hooks = _hooks(settings_by_scope)
 
     comparable = [item for item in items if item["kind"] in ("skill", "agent", "command") and item.get("purpose_declared")]
-    token_map = {index: _tokens("%s %s" % (item["name"], item["purpose"])) for index, item in enumerate(comparable)}
+    token_map = {index: aicommon.tokens("%s %s" % (item["name"], item["purpose"])) for index, item in enumerate(comparable)}
     for index, item in enumerate(comparable):
         candidates = []
         for other_index, other in enumerate(comparable):
             if other_index == index:
                 continue
-            score, shared = _similarity(token_map[index], token_map[other_index])
+            score, shared = aicommon.similarity(token_map[index], token_map[other_index])
             if score >= 0.22 and len(shared) >= 3:
                 candidates.append({
                     "name": other["name"],
@@ -772,14 +730,14 @@ def collect(ctx=None):
     permissions = _permissions(settings_by_scope)
     overrides = _overridden_settings(settings_by_scope)
 
-    skill_tokens = {item["name"]: _tokens(item["purpose"]) for item in items if item["kind"] == "skill" and item["purpose_declared"] and item["active"]}
+    skill_tokens = {item["name"]: aicommon.tokens(item["purpose"]) for item in items if item["kind"] == "skill" and item["purpose_declared"] and item["active"]}
     claude_md_overlap = []
     for item in items:
         if item["kind"] != "claude_md" or not item["active"]:
             continue
-        md_tokens = _tokens(fsutil.read_text(os.path.expanduser(item["path"])) or "")
+        md_tokens = aicommon.tokens(fsutil.read_text(os.path.expanduser(item["path"])) or "")
         for skill_name in sorted(skill_tokens):
-            score, shared = _similarity(md_tokens, skill_tokens[skill_name])
+            score, shared = aicommon.similarity(md_tokens, skill_tokens[skill_name])
             if score >= 0.12 and len(shared) >= 5:
                 claude_md_overlap.append({
                     "claude_md": item["path"],

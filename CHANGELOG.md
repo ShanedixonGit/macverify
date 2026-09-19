@@ -22,6 +22,47 @@ Notable changes to macverify. Dates are ISO 8601.
   together in one commit rather than through four Dependabot pull requests that
   each edited the same two workflow files and would have conflicted with one
   another.
+- `claude_code.py` carried its own copies of the stopword table, `_tokens`,
+  `_similarity`, `_cost` and `_headings`, identical to the ones in `aicommon`
+  that the other three assistant collectors already use. It now uses `aicommon`.
+- Two guarantee tests asserted exact source line numbers (`sysinfo.py:112`,
+  `shell.py:85`), so any edit above those lines failed CI with an unrelated
+  message. They now assert the same guarantee per module rather than per line.
+- The repository-hygiene test walked every file under the repository root,
+  including untracked local tool state such as `.claude-flow/`. It now skips
+  dot-directories other than `.github`, so it tests the repository rather than
+  the working copy.
+- `project.license` moved from the deprecated TOML table to the SPDX string
+  `"MIT"` with `license-files`, and the build requirement to
+  `setuptools>=77.0.0`, which is what that form needs. setuptools stops
+  supporting the table form on 2027-02-18; the built metadata now carries
+  `License-Expression: MIT`. Nothing about the licence itself changed.
+
+### Fixed
+
+- **The whole `identity` domain failed on Python 3.11 and newer for anyone with
+  an `~/.ssh/config`.** The `Host` line was matched with an inline `(?i)` placed
+  after `^`, which 3.11 rejects outright rather than warning about, so the
+  collector raised `re.PatternError` and the report silently lost every SSH key
+  finding — weak algorithms, permissive modes, missing passphrases. CI never saw
+  it because its runners have no ssh config. A regression test now builds one.
+- A report file that could not be written was still printed as `wrote <path>`
+  and the run still exited `0`. Failed writes are now reported and exit `1`,
+  matching the behaviour already fixed for the output directory in 1.1.0.
+- `--json-only` together with `--html-only` wrote nothing at all and exited `0`.
+  The two are now mutually exclusive and argparse rejects the pair.
+- `--skip` was silently ignored whenever `--only` was also given. Both are now
+  applied, and an unknown name in either is reported.
+- The overview panel read `installed_candidate_apps` from the `permissions`
+  payload, a key no collector writes, so "Candidate apps installed" was always
+  `0`. It now counts the applications the collector actually marks as commonly
+  privileged.
+- `compat.MINIMUM_PYTHON` was `3.8` while `pyproject.toml`, the README and
+  `CONTRIBUTING.md` all require 3.9, so a 3.8 interpreter was allowed to start a
+  run that was never supported. `design_notes.md` said 3.8 as well.
+- In the report's inline script, the clipboard fallback assigned to an undefined
+  `button` on failure, and the `/` search shortcut assumed the filter field was
+  present.
 
 ## [1.1.0] - 2026-09-02
 

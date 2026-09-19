@@ -103,12 +103,13 @@ class Network(unittest.TestCase):
         self.assertEqual(["sysinfo.py"], importers)
 
     def test_socket_is_used_only_for_the_local_hostname(self):
-        used = []
+        used = {}
         for name, tree in parsed():
             for call, line in calls(tree):
                 if call.split(".")[0] == "socket":
-                    used.append("%s:%d %s" % (name, line, call))
-        self.assertEqual(["sysinfo.py:112 socket.gethostname"], used)
+                    used.setdefault(name, []).append(call)
+        self.assertEqual(["sysinfo.py"], sorted(used))
+        self.assertEqual(["socket.gethostname"], used["sysinfo.py"])
 
     def test_no_socket_is_ever_constructed_or_connected(self):
         offenders = []
@@ -125,12 +126,13 @@ class ShellExecution(unittest.TestCase):
         self.assertEqual(["shell.py"], importers)
 
     def test_subprocess_run_is_the_only_subprocess_call(self):
-        used = []
+        used = {}
         for name, tree in parsed():
             for call, line in calls(tree):
                 if call.split(".")[0] == "subprocess":
-                    used.append("%s:%d %s" % (name, line, call))
-        self.assertEqual(["shell.py:85 subprocess.run"], used)
+                    used.setdefault(name, []).append(call)
+        self.assertEqual(["shell.py"], sorted(used))
+        self.assertEqual(["subprocess.run"], used["shell.py"])
 
     def test_shell_true_is_never_passed(self):
         offenders = []
@@ -225,7 +227,9 @@ class RepositoryHygiene(unittest.TestCase):
     def tracked_text_files(self):
         root = os.path.dirname(PACKAGE_ROOT)
         for base, dirs, files in os.walk(root):
-            dirs[:] = [d for d in dirs if d not in (".git", "__pycache__", "brand", "build", "dist", ".venv")
+            dirs[:] = [d for d in dirs
+                       if (d == ".github" or not d.startswith("."))
+                       and d not in ("__pycache__", "brand", "build", "dist")
                        and not d.endswith(".egg-info")]
             for name in sorted(files):
                 if name.endswith((".py", ".md", ".toml", ".yml", ".yaml", ".json", ".cfg")):

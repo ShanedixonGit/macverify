@@ -123,7 +123,7 @@ figures are comparable with each other.
 this host can be audited at all, what will be short, and why. It is the reason a
 report on an unfamiliar Mac reads as incomplete rather than wrong.
 
-- **Refusal.** A non-Darwin platform or a Python below 3.8 stops the run with a
+- **Refusal.** A non-Darwin platform or a Python below 3.9 stops the run with a
   reason on stderr and a non-zero exit, rather than producing a report full of
   `unavailable`.
 - **Warnings.** macOS older than 11 or newer than the release the rules were

@@ -135,6 +135,42 @@ class InlineScript(unittest.TestCase):
             self.assertEqual(self.script.count(opener), self.script.count(closer))
 
 
+class Panels(unittest.TestCase):
+    """The overview panels must read the keys the collectors actually emit.
+
+    A fact builder that reads a key no collector writes renders a confident
+    zero, which is worse than omitting the row.
+    """
+
+    def facts(self, domain, payload):
+        labels = report_html.i18n.labels("en")
+        return {item["label"]: item["value"] for item in report_html._facts(domain, payload, labels)}
+
+    def test_privileged_application_count_comes_from_the_collector_payload(self):
+        payload = {
+            "status": "ok",
+            "user_database": {"status": "ok", "grant_count": 1, "grants": [
+                {"service": "kTCCServiceAccessibility", "permission": "Accessibility",
+                 "client": "com.example.tool", "client_type": "bundle_id", "granted": True}]},
+            "system_database": {"status": "requires_privileges"},
+            "installed_applications": {"count": 3, "applications": [
+                {"application": "Terminal.app", "commonly_privileged": True},
+                {"application": "Ghostty.app", "commonly_privileged": True},
+                {"application": "Unknown.app", "commonly_privileged": False},
+            ]},
+        }
+        facts = self.facts("permissions", payload)
+        self.assertEqual("2", facts["Candidate apps installed"])
+        self.assertEqual("1", facts["High-risk grants"])
+
+    def test_a_fact_builder_reads_its_own_collector_output(self):
+        from macverify.collectors import permissions
+        from macverify.context import Context
+
+        facts = self.facts("permissions", permissions.collect(Context(timeout=5.0)))
+        self.assertIn("Candidate apps installed", facts)
+
+
 class Stylesheet(unittest.TestCase):
     def test_css_escapes_reach_the_browser_as_escapes(self):
         self.assertIn('content: "\\2212"', report_html.STYLE)
