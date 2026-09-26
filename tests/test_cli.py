@@ -222,5 +222,37 @@ class Packaging(unittest.TestCase):
         self.assertIn('packages = ["macverify", "macverify.collectors"]', self.pyproject)
 
 
+class ReportWrite(unittest.TestCase):
+    def setUp(self):
+        self.folder = tempfile.mkdtemp(prefix="macverify-write-")
+
+    def tearDown(self):
+        shutil.rmtree(self.folder, ignore_errors=True)
+
+    def test_existing_file_is_replaced_and_made_owner_only(self):
+        from macverify.cli import _write
+
+        path = os.path.join(self.folder, "remediation.md")
+        with open(path, "w") as handle:
+            handle.write("stale content that is longer than the new one")
+        os.chmod(path, 0o644)
+        self.assertTrue(_write(path, "fresh"))
+        with open(path, "r", encoding="utf-8") as handle:
+            self.assertEqual("fresh", handle.read())
+        self.assertEqual(0o600, stat.S_IMODE(os.stat(path).st_mode))
+
+    def test_symlink_at_the_report_path_is_not_followed(self):
+        from macverify.cli import _write
+
+        target = os.path.join(self.folder, "elsewhere.txt")
+        with open(target, "w") as handle:
+            handle.write("untouched")
+        link = os.path.join(self.folder, "remediation.md")
+        os.symlink(target, link)
+        self.assertFalse(_write(link, "report body"))
+        with open(target, "r", encoding="utf-8") as handle:
+            self.assertEqual("untouched", handle.read())
+
+
 if __name__ == "__main__":
     unittest.main()
