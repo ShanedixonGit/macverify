@@ -71,6 +71,9 @@ Notable changes to macverify. Dates are ISO 8601.
   can no longer redirect the report elsewhere; the write fails and is reported
   instead. Permissions are now set to `0600` on the open file before any content
   is written, rather than by path afterwards.
+- CI and publish workflows check out with `persist-credentials: false`. No job
+  pushes, so the GitHub token no longer needs to sit in `.git/config` where a
+  later step, or the uploaded build artifact, could pick it up.
 
 ## [1.1.0] - 2026-09-02
 
