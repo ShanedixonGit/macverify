@@ -86,16 +86,6 @@ def project_roots(ctx):
     return roots
 
 
-def search_roots(ctx):
-    home = fsutil.home()
-    seen = []
-    for root in project_roots(ctx):
-        for candidate in ancestors(root, home):
-            if candidate not in seen:
-                seen.append(candidate)
-    return seen
-
-
 def quote_lines(text, terms, limit=2, width=160):
     if not text or not terms:
         return []

@@ -345,7 +345,7 @@ def collect(ctx=None):
     brew = sysinfo.homebrew()
     result["homebrew"] = dict(brew)
     if brew.get("present"):
-        version_text, version_reason = _probe([brew["binary"], "--version"], ctx.slow(2))
+        version_text, _ = _probe([brew["binary"], "--version"], ctx.slow(2))
         result["homebrew"]["version"] = _first_version(version_text) if version_text else None
         result["homebrew"]["outdated_metadata"] = "local" if brew_reason is None else "unavailable"
         if brew_reason:

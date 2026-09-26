@@ -94,9 +94,6 @@ def run(cmd, timeout=DEFAULT_TIMEOUT, env=None, cwd=None):
     except subprocess.TimeoutExpired:
         result["skipped_reason"] = "timeout after %ss" % timeout
         return result
-    except (OSError, ValueError, MemoryError) as exc:
-        result["skipped_reason"] = "exec failed: %s" % exc.__class__.__name__
-        return result
     except Exception as exc:
         result["skipped_reason"] = "exec failed: %s" % exc.__class__.__name__
         return result

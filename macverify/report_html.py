@@ -604,10 +604,6 @@ def _count(node):
     return len(node) if isinstance(node, list) else 0
 
 
-def _yes_no(labels, value):
-    return labels["yes"] if value else labels["no"]
-
-
 def _facts_toolchain(payload, labels):
     tools = payload.get("tools") or {}
     python = payload.get("python") or {}
