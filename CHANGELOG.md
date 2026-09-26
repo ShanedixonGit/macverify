@@ -37,6 +37,10 @@ Notable changes to macverify. Dates are ISO 8601.
   `setuptools>=77.0.0`, which is what that form needs. setuptools stops
   supporting the table form on 2027-02-18; the built metadata now carries
   `License-Expression: MIT`. Nothing about the licence itself changed.
+- Removed code nothing called: `aicommon.search_roots`, `hardware.THERMAL_KEYS`,
+  `report_html._yes_no`, the unused `privileged_hint` parameter of the security
+  collector's `_simple`, and an `except` branch in `shell.run` whose body was
+  identical to the catch-all beneath it. Output is unchanged.
 
 ### Fixed
 

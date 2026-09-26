@@ -4,8 +4,6 @@ from .. import findings as F
 from .. import fsutil, shell, sysinfo
 from ..context import default_context
 
-THERMAL_KEYS = ("CPU_Scheduler_Limit", "CPU_Available_CPUs", "CPU_Speed_Limit")
-
 
 def _sysctl_map(names, timeout):
     values = {}

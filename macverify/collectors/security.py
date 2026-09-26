@@ -31,7 +31,7 @@ REMOTE_SERVICES = {
 }
 
 
-def _simple(argv, ctx, privileged_hint=None):
+def _simple(argv, ctx):
     res = shell.run(argv, timeout=ctx.slow(2))
     if res["skipped_reason"]:
         return shell.unavailable(res["skipped_reason"])
