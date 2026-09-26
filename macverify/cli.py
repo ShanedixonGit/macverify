@@ -286,15 +286,15 @@ def _print_quick_fixes(plan):
 
 def _write(path, text):
     try:
-        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC | os.O_NOFOLLOW, 0o600)
         try:
+            os.fchmod(descriptor, 0o600)
             with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
                 descriptor = None
                 handle.write(text)
         finally:
             if descriptor is not None:
                 os.close(descriptor)
-        os.chmod(path, 0o600)
     except OSError as exc:
         sys.stderr.write("cannot write %s: %s\n" % (path, exc))
         return False

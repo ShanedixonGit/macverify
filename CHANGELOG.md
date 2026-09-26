@@ -64,6 +64,14 @@ Notable changes to macverify. Dates are ISO 8601.
   `button` on failure, and the `/` search shortcut assumed the filter field was
   present.
 
+### Security
+
+- Report files are opened with `O_NOFOLLOW`, so a symlink planted at
+  `audit_*.json`, `audit_*.html` or `remediation.md` in a shared output folder
+  can no longer redirect the report elsewhere; the write fails and is reported
+  instead. Permissions are now set to `0600` on the open file before any content
+  is written, rather than by path afterwards.
+
 ## [1.1.0] - 2026-09-02
 
 ### Added
